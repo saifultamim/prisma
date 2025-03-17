@@ -17,7 +17,11 @@ const main = async() => {
     //     }
     // })
       
-    const createCategory = await 
-    console.log({createProfile})
+    const createCategory = await prisma.category.create({
+        data:{
+            name:'web development'
+        }
+    })
+    console.log({createCategory})
 }
 main()
