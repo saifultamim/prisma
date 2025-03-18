@@ -182,7 +182,318 @@ orderBy:
     })
 
 module:56 :
-56.4
+include,relation variable category ,foreign id with create  :  
+   const createPost = await prisma.post.create({
+        data:{
+            title : "this is title",
+            content: "this is content",
+            authorId:3,
+            postCategory:{
+                create:{
+                    // category:{
+                    //     connect:{
+                    //         id:1
+                    //     }
+                    // }
+                    categoryId:1
+                }
+            }
+        },
+        include:{
+            postCategory:true,
+        }
+    })
+
+
+  const createPost = await prisma.post.create({
+        data:{
+            title : "this is title 5",
+            content: "this is content 5",
+            authorId:3,
+            postCategory:{
+                create:[
+                    {categoryId:1},
+                    {categoryId:3},
+                    {categoryId:4},
+                ]
+            }
+        },
+        include:{
+            postCategory:true,
+        }
+    })
+
+
+//fluent api menas depend one table but show  data other table
+    const userFind = await prisma.user.findUnique({
+        where :{
+            id:1
+        },
+    }).Post()
+
+
+   const userFind = await prisma.user.findUnique({
+        where :{
+            id:1
+        },
+        include:{
+            Post:true,
+        }
+    })
+
+//
+const postUsers = await prisma.user.findMany({
+        include:{
+            Post:{
+               where:{
+                published:true
+               }
+            },
+        }
+    })
+    console.dir(postUsers,{depth:Infinity})
+
+
+AND:
+const andFiltering = await prisma.post.findMany({
+        where:{
+            AND:[
+                {
+                    title:{
+                        contains:'title'
+                    }
+                },
+                {
+                    published:true
+                }
+            ]
+        }
+    })
+
+
+
+OR:
+ const orFiltering = await prisma.post.findMany({
+        where:{
+            OR:[
+                {
+                    title:{
+                        contains:'title'
+                    }
+                },
+                {
+                    published:true
+                }
+            ]
+        }
+    })
+
+
+NOT:
+ const notFiltering = await prisma.post.findMany({
+        where:{
+          NOT:[
+                {
+                    title:{
+                        contains:'this'
+                    }
+                }
+            ]
+        }
+    })
+
+startsWith : 
+ const startsWith = await prisma.user.findMany({
+    where:{
+        email:{
+            startsWith:"user1"
+        }
+    }
+ })
+
+endsWith:
+ const endsWith = await prisma.user.findMany({
+    where:{
+        email:{
+            endsWith:"gmail.com"
+        }
+    }
+ })
+
+
+equals:
+ const equals = await prisma.user.findMany({
+    where:{
+        email:{
+            equals:"user1@gmail.com"
+        }
+    }
+ })
+
+
+
+in : 
+const userNameArray = ['user1','user2','user5']
+ const userNamesByArray = await prisma.user.findMany({
+    where:{
+      username:{
+        in:userNameArray
+      }
+    }
+ })
+ console.log(userNamesByArray)
+
+
+ const inDepthData = await prisma.user.findUnique({
+    where:{
+        id:3
+    },
+    include:{
+        Post:{
+            include:{
+                postCategory:{
+                    include:{
+                        category:true
+                    }
+                }
+            }
+        }
+    }
+
+ })
+
+
+
+
+56.10
+
+module:57 : 
+aggregate:
+aggregate will be execute the only Number
+aggregate- _avg,_sum,_count(fields),_max,_min
+
+ const aggregations = await prisma.user.aggregate({
+        //_avg,_sum,_count(fields,use both number and string fields),_max,_min
+        _count: {
+          id: true,
+        },
+      })
+
+await prisma.user.count() - counts total table data
+
+
+groupBy:
+groupBy() supports two levels of filtering: where and having.
+
+   const groupBy = await prisma.post.groupBy({
+        by:['published','authorId'],
+        _count:{
+            title:true
+        },
+       having:{
+        published:true
+       }
+    })
+
+
+batch / sequential transaction : 
+import { PrismaClient, UserRole } from "@prisma/client";
+
+const prisma = new PrismaClient()
+
+const createUser = prisma.user.create({
+    data:{
+        username:'fahim',
+        email:'fahil34@gmail.com',
+        role:UserRole.User
+    }
+})
+const updateUser = prisma.user.update({
+    where:{
+        id:1
+    },
+    data:{
+        username:'ahmed'
+    }
+})
+
+const batch = async () => {
+const [createData,updateData] = await prisma.$transaction([
+    createUser,
+    updateUser
+])
+console.log(createData,updateData)
+}
+
+batch()
+
+
+
+interactive transaction : 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
+
+
+
+const interactiveTransaction = async () => {
+   const result = await prisma.$transaction(async(tx)=>{
+    const getAllPost = await tx.post.findMany({
+        where:{
+            published:true
+        }
+    })
+    const countUser = await tx.user.count()
+    const updateUser = await tx.user.update({
+        where:{
+            id:5
+        },
+        data:{
+            username:'fahim_Ahmed'
+        }
+    })
+    
+    return {
+        getAllPost,countUser,updateUser
+    }
+   })
+   console.log(result)
+}
+
+interactiveTransaction()
+
+raw Query : 
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient()
+
+const rawQuery = async () => {
+  const result = await prisma.$queryRaw`SELECT * FROM posts where true`
+  console.log(result)
+  //force fully data delete which is relation users table
+//   await prisma.$queryRaw`TRUNCATE TABLE users CASCADE`
+}
+
+rawQuery()
+========================================================
+
+
+npx prisma generate - for only prisma client generate
+npx prisma validate - for schema is right or wrong identify
+npx prisma format - for schema formatting
+npx prisma db pull --print - which schema push the db that schema pull the terminal
+npx prisma db pull -  scehma.prisma file schema pull from the database
+npx prisma db push - not prisma client generate but will be  migrate  
+npx prisma - command 
+
+
+
+module-58
+
+
+
+
+
+
 
 
 

@@ -17,11 +17,29 @@ const main = async() => {
     //     }
     // })
       
-    const createCategory = await prisma.category.create({
+    // const createCategory = await prisma.category.create({
+    //     data:{
+    //         name:'software engineering'
+    //     }
+    // })
+
+    const createPost = await prisma.post.create({
         data:{
-            name:'web development'
+            title : "this is title 5",
+            content: "this is content 5",
+            authorId:3,
+            postCategory:{
+                create:[
+                    {categoryId:1},
+                    {categoryId:3},
+                    {categoryId:4},
+                ]
+            }
+        },
+        include:{
+            postCategory:true,
         }
     })
-    console.log({createCategory})
-}
-main()
+    console.log(createPost)
+ }
+//   main()
